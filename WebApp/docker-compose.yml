@@ -1,0 +1,44 @@
+version: '3.4'
+
+networks: 
+  dev: 
+    driver: bridge
+
+services:
+  webapp:
+    image: ${DOCKER_REGISTRY-}webapp
+    depends_on:
+      - "database"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_HTTP_PORTS=8080
+      - ConnectionStrings__DefaultConnection=User ID=postgres;Password=postgres;Server=webapp_db;Port=5432;Database=webapp_db;
+      #- ASPNETCORE_HTTPS_PORTS=8081
+    ports:
+      - "80:8080"
+    volumes:
+      - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
+      - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
+    build:
+      context: .
+      dockerfile: WebApp/Dockerfile
+    networks: 
+      - dev
+  
+  database:
+    image: postgres:latest
+    container_name: webapp_db
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=webapp_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - webapp_data:/var/lib/postgresql/data
+    restart: always
+    networks: 
+      - dev
+
+volumes:
+    webapp_data:    
