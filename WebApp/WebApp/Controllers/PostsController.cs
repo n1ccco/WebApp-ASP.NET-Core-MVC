@@ -36,6 +36,8 @@ namespace WebApp.Controllers
             }
 
             var post = await _context.Posts
+	            .Include(c => c.Categories)
+                .Include(com => com.Comments)
                 .Include(p => p.Author)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (post == null)
@@ -43,11 +45,44 @@ namespace WebApp.Controllers
                 return NotFound();
             }
 
-            return View(post);
+            return View(new PostDetailsViewModel{
+	            Post = post
+	            });
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Details(int? id, PostDetailsViewModel vm)
+        {
+            ModelState.Remove("Post")
+	        if (ModelState.IsValid && vm.Comment != null)
+	        {
+		        await _context.AddAsync(vm.Comment);
+		        await _context.SaveChangesAsync();
+		        return RedirectToAction(nameof(Details));
+	        }
+
+
+			if (id == null)
+	        {
+		        return NotFound();
+	        }
+
+	        var post = await _context.Posts
+		        .Include(c => c.Categories)
+		        .Include(com => com.Comments)
+		        .Include(p => p.Author)
+		        .FirstOrDefaultAsync(m => m.Id == id);
+	        if (post == null)
+	        {
+		        return NotFound();
+	        }
+
+	        return View();
         }
 
-        // GET: Posts/Create
-        public IActionResult Create()
+
+		// GET: Posts/Create
+		public IActionResult Create()
         {
             ViewData["AuthorId"] = new SelectList(_context.Users, "Id", "Email");
             ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Name");

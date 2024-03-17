@@ -7,15 +7,11 @@ public class Comment
 {
     public int Id { get; set; }
 
+    public string Name { get; set; } = string.Empty;
+
     public string Content { get; set; } = string.Empty;
 
     public DateTime CreatedDateTime { get; set; } = DateTime.UtcNow;
-    
-
-    [ForeignKey("Author")]
-    public int AuthorId { get; set; }
-    
-    public virtual User Author { get; set; }
 
 
     [ForeignKey("Post")]

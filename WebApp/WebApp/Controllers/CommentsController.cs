@@ -22,7 +22,7 @@ namespace WebApp.Controllers
         // GET: Comments
         public async Task<IActionResult> Index()
         {
-            var applicationDbContext = _context.Comments.Include(c => c.Author).Include(c => c.Post);
+            var applicationDbContext = _context.Comments.Include(c => c.Post);
             return View(await applicationDbContext.ToListAsync());
         }
 
@@ -35,7 +35,6 @@ namespace WebApp.Controllers
             }
 
             var comment = await _context.Comments
-                .Include(c => c.Author)
                 .Include(c => c.Post)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (comment == null)
@@ -49,7 +48,6 @@ namespace WebApp.Controllers
         // GET: Comments/Create
         public IActionResult Create()
         {
-            ViewData["AuthorId"] = new SelectList(_context.Users, "Id", "Email");
             ViewData["PostId"] = new SelectList(_context.Posts, "Id", "Body");
             return View();
         }
@@ -59,15 +57,15 @@ namespace WebApp.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Content,CreatedDateTime,AuthorId,PostId")] Comment comment)
+        public async Task<IActionResult> Create([Bind("Id,Content,Name,PostId")] Comment comment)
         {
+	        ModelState.Remove("Post");
             if (ModelState.IsValid)
             {
                 _context.Add(comment);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["AuthorId"] = new SelectList(_context.Users, "Id", "Email", comment.AuthorId);
             ViewData["PostId"] = new SelectList(_context.Posts, "Id", "Body", comment.PostId);
             return View(comment);
         }
@@ -85,7 +83,6 @@ namespace WebApp.Controllers
             {
                 return NotFound();
             }
-            ViewData["AuthorId"] = new SelectList(_context.Users, "Id", "Email", comment.AuthorId);
             ViewData["PostId"] = new SelectList(_context.Posts, "Id", "Body", comment.PostId);
             return View(comment);
         }
@@ -122,7 +119,6 @@ namespace WebApp.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["AuthorId"] = new SelectList(_context.Users, "Id", "Email", comment.AuthorId);
             ViewData["PostId"] = new SelectList(_context.Posts, "Id", "Body", comment.PostId);
             return View(comment);
         }
@@ -136,7 +132,6 @@ namespace WebApp.Controllers
             }
 
             var comment = await _context.Comments
-                .Include(c => c.Author)
                 .Include(c => c.Post)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (comment == null)

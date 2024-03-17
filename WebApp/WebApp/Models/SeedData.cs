@@ -43,7 +43,7 @@ namespace WebApp.Models
             if (!dbContext.Comments.Any())
             {
                 dbContext.Comments.AddRange(
-                    new Comment { Content = "Good description", AuthorId = 1, PostId = 1 }
+                    new Comment { Content = "Good description", Name = "Joe", PostId = 1 }
                 );
                 await dbContext.SaveChangesAsync();
             }

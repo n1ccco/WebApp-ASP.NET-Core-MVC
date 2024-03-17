@@ -1,0 +1,33 @@
+﻿@model WebApp.ViewModels.PostDetailsViewModel
+
+<div class="card mt-3">
+	<div class="card-header">
+		Comments
+	</div>
+	<ul class="list-group list-group-flush">
+		@foreach (var comment in Model.Post.Comments)
+		{
+			<li class="list-group-item">
+				<strong>@comment.Name</strong>: @comment.Content
+			</li>
+		}
+	</ul>
+	<div class="card-body">
+		<h6>Add a Comment</h6>
+		<form asp-action="Details" asp-controller="Posts" method="post">
+			<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+			<input type="hidden" asp-for="Comment.PostId" value="@Model.Post.Id"/>
+			<div class="form-group">
+				<label asp-for="Comment.Content" class="control-label"></label>
+				<textarea asp-for="Comment.Content" class="form-control"> </textarea>
+				<span asp-validation-for="Comment.Content" class="text-danger"></span>
+			</div>
+			<div class="form-group">
+				<label asp-for="Comment.Name" class="control-label"></label>
+				<input asp-for="Comment.Name" class="form-control"/>
+				<span asp-validation-for="Comment.Name" class="text-danger"></span>
+			</div>
+			<button type="submit" class="btn btn-primary">Submit</button>
+		</form>
+	</div>
+</div>
