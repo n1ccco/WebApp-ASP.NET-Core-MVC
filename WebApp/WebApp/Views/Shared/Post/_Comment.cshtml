@@ -1,5 +1,32 @@
 ﻿@model WebApp.ViewModels.PostDetailsViewModel
 
+@{
+	string toTimeAgo(DateTime time)
+	{
+		// Calculate time difference
+		TimeSpan timeSinceCreation = DateTime.Now - time;
+    
+		// Display time in minutes or hours
+		if (timeSinceCreation.TotalSeconds < 60)
+		{
+			return $"{(int)timeSinceCreation.TotalSeconds} second(s) ago";
+		}
+		else if (timeSinceCreation.TotalMinutes < 60)
+		{
+			return $"{(int)timeSinceCreation.TotalMinutes} minute(s) ago";
+		}
+		else if (timeSinceCreation.TotalHours < 24)
+		{
+			return $"{(int)timeSinceCreation.TotalHours} hour(s) ago";
+		}
+		else
+		{
+			return $"{Model.Post.CreatedDateTime}";
+		}
+	}
+	
+}
+
 <div class="card mt-3">
 	<div class="card-header">
 		Comments
@@ -9,6 +36,7 @@
 		{
 			<li class="list-group-item">
 				<strong>@comment.Name</strong>: @comment.Content
+				<p class="card-text"><small class="text-muted">@toTimeAgo(comment.CreatedDateTime)</small></p>
 			</li>
 		}
 	</ul>
@@ -18,14 +46,14 @@
 			<div asp-validation-summary="ModelOnly" class="text-danger"></div>
 			<input type="hidden" asp-for="Comment.PostId" value="@Model.Post.Id"/>
 			<div class="form-group">
+				<label asp-for="Comment.Name" class="control-label"></label>
+				<input asp-for="Comment.Name" class="form-control" />
+				<span asp-validation-for="Comment.Name" class="text-danger"></span>
+			</div>
+			<div class="form-group">
 				<label asp-for="Comment.Content" class="control-label"></label>
 				<textarea asp-for="Comment.Content" class="form-control"> </textarea>
 				<span asp-validation-for="Comment.Content" class="text-danger"></span>
-			</div>
-			<div class="form-group">
-				<label asp-for="Comment.Name" class="control-label"></label>
-				<input asp-for="Comment.Name" class="form-control"/>
-				<span asp-validation-for="Comment.Name" class="text-danger"></span>
 			</div>
 			<button type="submit" class="btn btn-primary">Submit</button>
 		</form>

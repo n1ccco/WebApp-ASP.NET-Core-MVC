@@ -4,9 +4,7 @@
     ViewData["Title"] = "Create";
 }
 
-<h1>Create</h1>
-
-<h4>Post</h4>
+<h4>Create Post</h4>
 <hr />
 <div class="row">
     <div class="col-md-4">
@@ -27,8 +25,8 @@
                 <select asp-for="Post.AuthorId" class="form-control" asp-items="ViewBag.AuthorId"></select>
             </div>
             <div class="form-group">
-                <label asp-for="Post.Categories" class="control-label"></label>
-                <select asp-for="SelectedCategories" class="form-control" asp-items="ViewBag.CategoryId"></select>
+	            <label asp-for="Post.Categories" class="control-label"></label>
+                <select asp-for="SelectedCategories" class="form-control selectpicker" asp-items="ViewBag.CategoryId"></select>
             </div>
             <div class="form-group">
                 <input type="submit" value="Create" class="btn btn-primary" />

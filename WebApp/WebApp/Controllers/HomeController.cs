@@ -8,10 +8,16 @@ namespace WebApp.Controllers
 {
     public class HomeController(ApplicationDbContext context) : Controller
     {
-	    public IActionResult Index()
+	    public async Task<IActionResult> Index(string? sortType)
 		{
-			var posts = context.Posts.Include(p => p.Author).ToList();
-			return View(posts);
+			if (sortType is "Queryable")
+			{
+				var orderedQueryable =
+					context.Posts.Include(p => p.Author).OrderBy(c => c.CreatedDateTime);
+				return View(await orderedQueryable.ToListAsync());
+			}
+			var posts = context.Posts.Include(p => p.Author).OrderByDescending(c => c.CreatedDateTime);
+			return View(await posts.ToListAsync());
 		}
 	}
 }

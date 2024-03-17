@@ -11,33 +11,26 @@ using WebApp.ViewModels;
 
 namespace WebApp.Controllers
 {
-    public class PostsController : Controller
+    public class PostsController(ApplicationDbContext context) : Controller
     {
-        private readonly ApplicationDbContext _context;
-
-        public PostsController(ApplicationDbContext context)
-        {
-            _context = context;
-        }
-
-        // GET: Posts
+	    // GET: Posts
         public async Task<IActionResult> Index()
         {
-            var applicationDbContext = _context.Posts.Include(p => p.Author);
+            var applicationDbContext = context.Posts.Include(p => p.Author).OrderByDescending(c => c.CreatedDateTime);
             return View(await applicationDbContext.ToListAsync());
         }
 
-        // GET: Posts/Details/5
-        public async Task<IActionResult> Details(int? id)
+		// GET: Posts/Details/5
+		public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
             {
                 return NotFound();
             }
 
-            var post = await _context.Posts
+            var post = await context.Posts
 	            .Include(c => c.Categories)
-                .Include(com => com.Comments)
+                .Include(com => com.Comments.OrderByDescending(c=>c.CreatedDateTime))
                 .Include(p => p.Author)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (post == null)
@@ -53,39 +46,23 @@ namespace WebApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Details(int? id, PostDetailsViewModel vm)
         {
-            ModelState.Remove("Post")
-	        if (ModelState.IsValid && vm.Comment != null)
+	        ModelState.Remove("Post");
+	        ModelState.Remove("Comment.Post");
+			if (ModelState.IsValid && vm.Comment != null)
 	        {
-		        await _context.AddAsync(vm.Comment);
-		        await _context.SaveChangesAsync();
-		        return RedirectToAction(nameof(Details));
+		        await context.AddAsync(vm.Comment);
+		        await context.SaveChangesAsync();
 	        }
 
-
-			if (id == null)
-	        {
-		        return NotFound();
-	        }
-
-	        var post = await _context.Posts
-		        .Include(c => c.Categories)
-		        .Include(com => com.Comments)
-		        .Include(p => p.Author)
-		        .FirstOrDefaultAsync(m => m.Id == id);
-	        if (post == null)
-	        {
-		        return NotFound();
-	        }
-
-	        return View();
+	        return RedirectToAction(nameof(Details));
         }
 
 
 		// GET: Posts/Create
 		public IActionResult Create()
         {
-            ViewData["AuthorId"] = new SelectList(_context.Users, "Id", "Email");
-            ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Name");
+            ViewData["AuthorId"] = new SelectList(context.Users, "Id", "Email");
+            ViewData["CategoryId"] = new SelectList(context.Categories, "Id", "Name");
             return View();
         }
 
@@ -99,7 +76,7 @@ namespace WebApp.Controllers
 
             foreach (var category in postViewModel.SelectedCategories)
             {
-                var categoryToAdd = await _context.Categories.FindAsync(category);
+                var categoryToAdd = await context.Categories.FindAsync(category);
                 if (categoryToAdd != null)
                 {
                     postViewModel.Post.Categories.Add(categoryToAdd);
@@ -110,12 +87,12 @@ namespace WebApp.Controllers
             ModelState.Remove("Post.Author");
             if (ModelState.IsValid)
             {
-                _context.Add(postViewModel.Post);
-                await _context.SaveChangesAsync();
+                context.Add(postViewModel.Post);
+                await context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["AuthorId"] = new SelectList(_context.Users, "Id", "Email", postViewModel.Post.AuthorId);
-            ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Name");
+            ViewData["AuthorId"] = new SelectList(context.Users, "Id", "Email", postViewModel.Post.AuthorId);
+            ViewData["CategoryId"] = new SelectList(context.Categories, "Id", "Name");
             return View(postViewModel);
         }
 
@@ -127,7 +104,7 @@ namespace WebApp.Controllers
                 return NotFound();
             }
 
-            var post = await _context.Posts.
+            var post = await context.Posts.
                                             //Include(a => a.Author).
                                             Include(c => c.Categories).
                                             FirstOrDefaultAsync(p => p.Id == id);
@@ -137,8 +114,8 @@ namespace WebApp.Controllers
             }
 
             int[] selectedCategories = post.Categories.Select(i => i.Id).ToArray();
-            ViewData["AuthorId"] = new SelectList(_context.Users, "Id", "Email", post.AuthorId);
-            ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Name", selectedCategories);
+            ViewData["AuthorId"] = new SelectList(context.Users, "Id", "Email", post.AuthorId);
+            ViewData["CategoryId"] = new SelectList(context.Categories, "Id", "Name", selectedCategories);
             return View(new PostCreateViewModel
             {
                 Post = post,
@@ -164,7 +141,7 @@ namespace WebApp.Controllers
             {
                 try
                 {
-                    var postToUpdate = await _context.Posts
+                    var postToUpdate = await context.Posts
                         //.Include(a => a.Author)
                         .Include(p => p.Categories)
                         .FirstOrDefaultAsync(p => p.Id == id);
@@ -182,7 +159,7 @@ namespace WebApp.Controllers
                     postToUpdate.Categories.Clear();
                     foreach (var categoryId in postViewModel.SelectedCategories)
                     {
-                        var categoryToAdd = await _context.Categories.FindAsync(categoryId);
+                        var categoryToAdd = await context.Categories.FindAsync(categoryId);
                         if (categoryToAdd != null)
                         {
                             postToUpdate.Categories.Add(categoryToAdd);
@@ -190,8 +167,8 @@ namespace WebApp.Controllers
                     }
 
 
-                    _context.Update(postToUpdate);
-                    await _context.SaveChangesAsync();
+                    context.Update(postToUpdate);
+                    await context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -206,8 +183,8 @@ namespace WebApp.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["AuthorId"] = new SelectList(_context.Users, "Id", "Email", postViewModel.Post.Author);
-            ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Name");
+            ViewData["AuthorId"] = new SelectList(context.Users, "Id", "Email", postViewModel.Post.Author);
+            ViewData["CategoryId"] = new SelectList(context.Categories, "Id", "Name");
             return View(postViewModel);
         }
 
@@ -219,7 +196,7 @@ namespace WebApp.Controllers
                 return NotFound();
             }
 
-            var post = await _context.Posts
+            var post = await context.Posts
                 .Include(p => p.Author)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (post == null)
@@ -235,19 +212,19 @@ namespace WebApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var post = await _context.Posts.FindAsync(id);
+            var post = await context.Posts.FindAsync(id);
             if (post != null)
             {
-                _context.Posts.Remove(post);
+                context.Posts.Remove(post);
             }
 
-            await _context.SaveChangesAsync();
+            await context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
         private bool PostExists(int id)
         {
-            return _context.Posts.Any(e => e.Id == id);
+            return context.Posts.Any(e => e.Id == id);
         }
     }
 }
