@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using WebApp.Data;
@@ -10,19 +6,12 @@ using WebApp.Models;
 
 namespace WebApp.Controllers
 {
-    public class CommentsController : Controller
+    public class CommentsController(ApplicationDbContext context) : Controller
     {
-        private readonly ApplicationDbContext _context;
-
-        public CommentsController(ApplicationDbContext context)
-        {
-            _context = context;
-        }
-
         // GET: Comments
         public async Task<IActionResult> Index()
         {
-            var applicationDbContext = _context.Comments.Include(c => c.Post);
+            var applicationDbContext = context.Comments.Include(c => c.Post);
             return View(await applicationDbContext.ToListAsync());
         }
 
@@ -34,7 +23,7 @@ namespace WebApp.Controllers
                 return NotFound();
             }
 
-            var comment = await _context.Comments
+            var comment = await context.Comments
                 .Include(c => c.Post)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (comment == null)
@@ -48,7 +37,7 @@ namespace WebApp.Controllers
         // GET: Comments/Create
         public IActionResult Create()
         {
-            ViewData["PostId"] = new SelectList(_context.Posts, "Id", "Body");
+            ViewData["PostId"] = new SelectList(context.Posts, "Id", "Body");
             return View();
         }
 
@@ -62,11 +51,11 @@ namespace WebApp.Controllers
 	        ModelState.Remove("Post");
             if (ModelState.IsValid)
             {
-                _context.Add(comment);
-                await _context.SaveChangesAsync();
+                context.Add(comment);
+                await context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["PostId"] = new SelectList(_context.Posts, "Id", "Body", comment.PostId);
+            ViewData["PostId"] = new SelectList(context.Posts, "Id", "Body", comment.PostId);
             return View(comment);
         }
 
@@ -78,12 +67,12 @@ namespace WebApp.Controllers
                 return NotFound();
             }
 
-            var comment = await _context.Comments.FindAsync(id);
+            var comment = await context.Comments.FindAsync(id);
             if (comment == null)
             {
                 return NotFound();
             }
-            ViewData["PostId"] = new SelectList(_context.Posts, "Id", "Body", comment.PostId);
+            ViewData["PostId"] = new SelectList(context.Posts, "Id", "Body", comment.PostId);
             return View(comment);
         }
 
@@ -103,8 +92,8 @@ namespace WebApp.Controllers
             {
                 try
                 {
-                    _context.Update(comment);
-                    await _context.SaveChangesAsync();
+                    context.Update(comment);
+                    await context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -119,7 +108,7 @@ namespace WebApp.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["PostId"] = new SelectList(_context.Posts, "Id", "Body", comment.PostId);
+            ViewData["PostId"] = new SelectList(context.Posts, "Id", "Body", comment.PostId);
             return View(comment);
         }
 
@@ -131,7 +120,7 @@ namespace WebApp.Controllers
                 return NotFound();
             }
 
-            var comment = await _context.Comments
+            var comment = await context.Comments
                 .Include(c => c.Post)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (comment == null)
@@ -147,19 +136,19 @@ namespace WebApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var comment = await _context.Comments.FindAsync(id);
+            var comment = await context.Comments.FindAsync(id);
             if (comment != null)
             {
-                _context.Comments.Remove(comment);
+                context.Comments.Remove(comment);
             }
 
-            await _context.SaveChangesAsync();
+            await context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
         private bool CommentExists(int id)
         {
-            return _context.Comments.Any(e => e.Id == id);
+            return context.Comments.Any(e => e.Id == id);
         }
     }
 }

@@ -1,8 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
-using System.Diagnostics;
 using Microsoft.EntityFrameworkCore;
 using WebApp.Data;
-using WebApp.Models;
 
 namespace WebApp.Controllers
 {
@@ -10,14 +8,25 @@ namespace WebApp.Controllers
     {
 	    public async Task<IActionResult> Index(string? sortType)
 		{
-			if (sortType is "Queryable")
-			{
-				var orderedQueryable =
-					context.Posts.Include(p => p.Author).OrderBy(c => c.CreatedDateTime);
-				return View(await orderedQueryable.ToListAsync());
-			}
-			var posts = context.Posts.Include(p => p.Author).OrderByDescending(c => c.CreatedDateTime);
-			return View(await posts.ToListAsync());
+            switch (sortType)
+            {
+                case "DateAscending":
+                    var dateAscending =
+                        context.Posts.Include(p => p.Author).OrderBy(c => c.CreatedDateTime);
+                    return View(await dateAscending.ToListAsync());
+				case "NameAscending":
+                    var nameAscending =
+                        context.Posts.Include(p => p.Author).OrderBy(c => c.Title);
+                    return View(await nameAscending.ToListAsync());
+				case "NameDescending":
+					var nameDescending =
+						context.Posts.Include(p => p.Author).OrderByDescending(c => c.Title);
+					return View(await nameDescending.ToListAsync());
+				default:
+                    var posts = context.Posts.Include(p => p.Author).OrderByDescending(c => c.CreatedDateTime);
+                    return View(await posts.ToListAsync());
+            }
+			
 		}
 	}
 }
