@@ -47,6 +47,8 @@
 
 <a asp-controller="Posts" asp-action="Create" class="btn btn-xl btn-primary align-self-center mb-2">Add new post</a>
 <a asp-controller="Categories" asp-action="Create" class="btn btn-xl btn-primary align-self-center mb-2">Add new category</a>
+<a asp-controller="Home" asp-action="Index" class="btn btn-xl btn-primary align-self-center mb-2">Sort by name (New to Old)</a>
+<a asp-controller="Home" asp-action="Index" asp-route-sortType="Queryable" class="btn btn-xl btn-primary align-self-center mb-2">Sort by name (Old to New)</a>
 <div class="text-center">
 	<div class="container">
 		<div class="row">
