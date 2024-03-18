@@ -9,11 +9,11 @@ namespace WebApp.Controllers
     public class PostsController(ApplicationDbContext context) : Controller
     {
 	    // GET: Posts
-        public async Task<IActionResult> Index()
+        /*public async Task<IActionResult> Index()
         {
             var applicationDbContext = context.Posts.Include(p => p.Author).OrderByDescending(c => c.CreatedDateTime);
             return View(await applicationDbContext.ToListAsync());
-        }
+        }*/
 
 		// GET: Posts/Details/5
 		public async Task<IActionResult> Details(int? id)
@@ -84,8 +84,8 @@ namespace WebApp.Controllers
             {
                 context.Add(postViewModel.Post);
                 await context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
+				return RedirectToAction("Index", "Home");
+			}
             ViewData["AuthorId"] = new SelectList(context.Users, "Id", "Email", postViewModel.Post.AuthorId);
             ViewData["CategoryId"] = new SelectList(context.Categories, "Id", "Name");
             return View(postViewModel);
@@ -176,8 +176,8 @@ namespace WebApp.Controllers
                         throw;
                     }
                 }
-                return RedirectToAction(nameof(Index));
-            }
+				return RedirectToAction("Index", "Home");
+			}
             ViewData["AuthorId"] = new SelectList(context.Users, "Id", "Email", postViewModel.Post.Author);
             ViewData["CategoryId"] = new SelectList(context.Categories, "Id", "Name");
             return View(postViewModel);
@@ -214,7 +214,7 @@ namespace WebApp.Controllers
             }
 
             await context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction("Index","Home");
         }
 
         private bool PostExists(int id)

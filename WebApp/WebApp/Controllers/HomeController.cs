@@ -6,27 +6,32 @@ namespace WebApp.Controllers
 {
     public class HomeController(ApplicationDbContext context) : Controller
     {
-	    public async Task<IActionResult> Index(string? sortType)
+	    public async Task<IActionResult> Index(string? sortType, string? search)
 		{
-            switch (sortType)
-            {
+			IOrderedQueryable<Models.Post> list;
+			switch (sortType)
+            { 
+		            
                 case "DateAscending":
-                    var dateAscending =
-                        context.Posts.Include(p => p.Author).OrderBy(c => c.CreatedDateTime);
-                    return View(await dateAscending.ToListAsync());
+                    list = context.Posts.Include(p => p.Author).OrderBy(c => c.CreatedDateTime);
+                    break;
 				case "NameAscending":
-                    var nameAscending =
-                        context.Posts.Include(p => p.Author).OrderBy(c => c.Title);
-                    return View(await nameAscending.ToListAsync());
+                    list = context.Posts.Include(p => p.Author).OrderBy(c => c.Title);
+                    break;
 				case "NameDescending":
-					var nameDescending =
-						context.Posts.Include(p => p.Author).OrderByDescending(c => c.Title);
-					return View(await nameDescending.ToListAsync());
+					list = context.Posts.Include(p => p.Author).OrderByDescending(c => c.Title);
+					break;
 				default:
-                    var posts = context.Posts.Include(p => p.Author).OrderByDescending(c => c.CreatedDateTime);
-                    return View(await posts.ToListAsync());
+                    list = context.Posts.Include(p => p.Author).OrderByDescending(c => c.CreatedDateTime);
+                    break;
             }
-			
+
+			if (search != null)
+			{
+				list = context.Posts.Include(p => p.Author).Where(s => s.Body.Contains(search)).OrderByDescending(c => c.CreatedDateTime);
+			}
+			return View(await list.ToListAsync());
+
 		}
 	}
 }
