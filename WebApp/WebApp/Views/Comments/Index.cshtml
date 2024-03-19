@@ -1,20 +1,8 @@
-﻿@model IEnumerable<WebApp.Models.Comment>
+﻿@using WebApp.Utilities
+@model IEnumerable<WebApp.Models.Comment>
 
 @{
     ViewData["Title"] = "Comments";
-}
-@functions {
-	public string Truncate(string value, int length)
-	{
-		if (value.Length <= length)
-		{
-			return value;
-		}
-		else
-		{
-			return value.Substring(0, length) + "...";
-		}
-	}
 }
 
 <h1>Comments</h1>
@@ -47,7 +35,7 @@
                 @Html.DisplayFor(modelItem => item.CreatedDateTime)
             </td>
             <td>
-	            @Truncate(item.Post.Body, 100)
+	            @ViewHelperUtilities.Truncate(item.Post.Body, 100)
 
             </td>
             <td>

@@ -1,28 +1,29 @@
 ﻿@model WebApp.ViewModels.PostDetailsViewModel
 
 @{
-	string toTimeAgo(DateTime time)
+	string ToTimeAgo(DateTime time)
 	{
-		// Calculate time difference
 		TimeSpan timeSinceCreation = DateTime.Now - time;
-    
-		// Display time in minutes or hours
+
 		if (timeSinceCreation.TotalSeconds < 60)
 		{
-			return $"{(int)timeSinceCreation.TotalSeconds} second(s) ago";
+			int seconds = (int)timeSinceCreation.TotalSeconds;
+			return $"{seconds} second{(seconds != 1 ? "s" : "")} ago";
 		}
-		else if (timeSinceCreation.TotalMinutes < 60)
+
+		if (timeSinceCreation.TotalMinutes < 60)
 		{
-			return $"{(int)timeSinceCreation.TotalMinutes} minute(s) ago";
+			int minutes = (int)timeSinceCreation.TotalMinutes;
+			return $"{minutes} minute{(minutes != 1 ? "s" : "")} ago";
 		}
-		else if (timeSinceCreation.TotalHours < 24)
+
+		if (timeSinceCreation.TotalHours < 24)
 		{
-			return $"{(int)timeSinceCreation.TotalHours} hour(s) ago";
+			int hours = (int)timeSinceCreation.TotalHours;
+			return $"{hours} hour{(hours != 1 ? "s" : "")} ago";
 		}
-		else
-		{
-			return $"{Model.Post.CreatedDateTime}";
-		}
+
+		return time.ToString("yyyy-MM-dd");
 	}
 	
 }
@@ -36,7 +37,7 @@
 		{
 			<li class="list-group-item">
 				<strong>@comment.Name</strong>: @comment.Content
-				<p class="card-text"><small class="text-muted">@toTimeAgo(comment.CreatedDateTime)</small></p>
+				<p class="card-text"><small class="text-muted">@ToTimeAgo(comment.CreatedDateTime)</small></p>
 			</li>
 		}
 	</ul>

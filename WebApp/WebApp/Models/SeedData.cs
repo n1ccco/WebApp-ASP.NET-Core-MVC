@@ -27,7 +27,7 @@ namespace WebApp.Models
             if (!dbContext.Users.Any())
             {
                 dbContext.Users.AddRange(
-                    new User { Username = "Pablo", Email = "pablo.drugs@mexico.mx" }
+                    new User { Username = "Pablo", Email = "pablo.traveler@mexico.mx" }
                 );
                 await dbContext.SaveChangesAsync();
             }
@@ -35,7 +35,7 @@ namespace WebApp.Models
             if (!dbContext.Posts.Any())
             {
                 dbContext.Posts.AddRange(
-                    new Post { Title = "Mexico", Body = "A good way to the USA", AuthorId = 1 }
+                    new Post { Title = "Embracing Nature's Wonders: Eco-Tourism Adventures", Body = "Dive into the world of eco-tourism and embark on sustainable adventures! Explore biodiverse rainforests in Costa Rica, snorkel in pristine coral reefs in Australia, or hike through ancient forests in Canada. Eco-tourism not only allows you to witness nature's wonders up close but also promotes conservation and supports local communities. Experience the beauty of our planet responsibly and leave a positive impact on the environment.", AuthorId = 1 }
                 );
                 await dbContext.SaveChangesAsync();
             }
@@ -43,7 +43,7 @@ namespace WebApp.Models
             if (!dbContext.Comments.Any())
             {
                 dbContext.Comments.AddRange(
-                    new Comment { Content = "Good description", Name = "Joe", PostId = 1 }
+                    new Comment { Content = "Good Post", Name = "Joe", PostId = 1 }
                 );
                 await dbContext.SaveChangesAsync();
             }
