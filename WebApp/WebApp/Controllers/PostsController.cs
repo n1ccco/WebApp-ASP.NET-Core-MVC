@@ -8,12 +8,6 @@ namespace WebApp.Controllers
 {
     public class PostsController(ApplicationDbContext context) : Controller
     {
-	    // GET: Posts
-        /*public async Task<IActionResult> Index()
-        {
-            var applicationDbContext = context.Posts.Include(p => p.Author).OrderByDescending(c => c.CreatedDateTime);
-            return View(await applicationDbContext.ToListAsync());
-        }*/
 
 		// GET: Posts/Details/5
 		public async Task<IActionResult> Details(int? id)
@@ -137,7 +131,6 @@ namespace WebApp.Controllers
                 try
                 {
                     var postToUpdate = await context.Posts
-                        //.Include(a => a.Author)
                         .Include(p => p.Categories)
                         .FirstOrDefaultAsync(p => p.Id == id);
 
@@ -150,7 +143,6 @@ namespace WebApp.Controllers
                     postToUpdate.Body = postViewModel.Post.Body;
                     postToUpdate.AuthorId = postViewModel.Post.AuthorId;
 
-                    // Clear existing categories and add selected categories
                     postToUpdate.Categories.Clear();
                     foreach (var categoryId in postViewModel.SelectedCategories)
                     {

@@ -1,32 +1,5 @@
-﻿@model WebApp.ViewModels.PostDetailsViewModel
-
-@{
-	string ToTimeAgo(DateTime time)
-	{
-		TimeSpan timeSinceCreation = DateTime.Now - time;
-
-		if (timeSinceCreation.TotalSeconds < 60)
-		{
-			int seconds = (int)timeSinceCreation.TotalSeconds;
-			return $"{seconds} second{(seconds != 1 ? "s" : "")} ago";
-		}
-
-		if (timeSinceCreation.TotalMinutes < 60)
-		{
-			int minutes = (int)timeSinceCreation.TotalMinutes;
-			return $"{minutes} minute{(minutes != 1 ? "s" : "")} ago";
-		}
-
-		if (timeSinceCreation.TotalHours < 24)
-		{
-			int hours = (int)timeSinceCreation.TotalHours;
-			return $"{hours} hour{(hours != 1 ? "s" : "")} ago";
-		}
-
-		return time.ToString("yyyy-MM-dd");
-	}
-	
-}
+﻿@using WebApp.Utilities
+@model WebApp.ViewModels.PostDetailsViewModel
 
 <div class="card mt-3">
 	<div class="card-header">
@@ -37,7 +10,7 @@
 		{
 			<li class="list-group-item">
 				<strong>@comment.Name</strong>: @comment.Content
-				<p class="card-text"><small class="text-muted">@ToTimeAgo(comment.CreatedDateTime)</small></p>
+				<p class="card-text"><small class="text-muted">@ViewHelperUtilities.ToTimeAgo(comment.CreatedDateTime)</small></p>
 			</li>
 		}
 	</ul>

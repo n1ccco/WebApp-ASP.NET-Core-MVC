@@ -1,52 +1,47 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using NuGet.Versioning;
 using WebApp.Data;
 
 namespace WebApp.Controllers
 {
     public class HomeController(ApplicationDbContext context) : Controller
     {
-	    public async Task<IActionResult> Index(string? sortType, string? search, int? category)
+		public async Task<IActionResult> Index(string? sortType, string? search, int? category, int? author)
 		{
-			IOrderedQueryable<Models.Post> list;
+			IQueryable<Models.Post> list = context.Posts.Include(p => p.Author);
+
 			switch (sortType)
-            { 
-		            
-                case "DateAscending":
-                    list = context.Posts.Include(p => p.Author).
-	                    OrderBy(c => c.CreatedDateTime);
-                    break;
+			{
+				case "DateAscending":
+					list = list.OrderBy(c => c.CreatedDateTime);
+					break;
 				case "NameAscending":
-                    list = context.Posts.Include(p => p.Author).
-	                    OrderBy(c => c.Title);
-                    break;
+					list = list.OrderBy(c => c.Title);
+					break;
 				case "NameDescending":
-					list = context.Posts.Include(p => p.Author).
-						OrderByDescending(c => c.Title);
+					list = list.OrderByDescending(c => c.Title);
 					break;
 				default:
-                    list = context.Posts.Include(p => p.Author).
-	                    OrderByDescending(c => c.CreatedDateTime);
-                    break;
-            }
-
-			if (search != null)
-			{
-				list = context.Posts.Include(p => p.Author).
-					Where(s => s.Body.Contains(search)).
-					OrderByDescending(c => c.CreatedDateTime);
+					list = list.OrderByDescending(c => c.CreatedDateTime);
+					break;
 			}
 
-			if (category != null)
+			if (!string.IsNullOrEmpty(search))
 			{
-				list = context.Posts.Include(p => p.Author).
-					Include(s => s.Categories).
-					Where(p => p.Categories.Any(c=>c.Id == category)).
-					OrderByDescending(c => c.CreatedDateTime);
+				list = list.Where(s => s.Body.Contains(search));
 			}
+
+			if (category.HasValue)
+			{
+				list = list.Where(p => p.Categories.Any(c => c.Id == category));
+			}
+
+			if (author.HasValue)
+			{
+				list = list.Where(p => p.Author.Id == author);
+			}
+
 			return View(await list.ToListAsync());
-
 		}
 	}
 }
